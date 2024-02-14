@@ -1,11 +1,5 @@
 [
   {
-    "id": "6a024a6e-6fd8-4cda-9348-afb538bec64d",
-    "title": "Clean car",
-    "completed": false,
-    "createdAt": "2024-02-13T21:32:20.756Z"
-  },
-  {
     "id": "4535ed4e-9c0f-4e74-803c-5c3589331542",
     "title": "Buy Groceries",
     "completed": false,
@@ -26,14 +20,8 @@
   {
     "id": "502ff5b5-e3da-4ef2-bd1d-5dca8a66c744",
     "title": "Get Laser Cannon",
-    "completed": true,
+    "completed": false,
     "createdAt": "2024-02-14T03:27:23.345Z"
-  },
-  {
-    "id": "1d551ded-3dda-4f91-ad0c-9b3504f47529",
-    "title": "Throw Away Old Armour",
-    "completed": true,
-    "createdAt": "2024-02-14T03:27:46.933Z"
   },
   {
     "id": "d261d19d-ae0d-4db2-b084-265f4952fd1b",
@@ -42,14 +30,8 @@
     "createdAt": "2024-02-14T04:30:20.828Z"
   },
   {
-    "id": "038c4511-03cf-4e34-8dfa-e6d60cad967c",
-    "title": "Some Random Shit",
-    "completed": true,
-    "createdAt": "2024-02-14T04:32:33.293Z"
-  },
-  {
     "id": "0c78bf54-7087-4a92-a6bd-204d57916600",
-    "title": "",
+    "title": "A Missing Title",
     "completed": true,
     "createdAt": "2024-02-14T04:32:35.101Z"
   },

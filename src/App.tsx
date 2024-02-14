@@ -46,13 +46,35 @@ function App() {
         </form>
         {tasks.map((task) => {
           // iterate through the tasks in the state, and when a task that matches the current task interacted with, replace it with it's updated version(value)
-          const setTask = (value: Task) => setTasks(tasks => tasks.map((t) => t.id === task.id ? value : t));
-          const setCompleted = async (completed: boolean) => setTask(await taskRepo.save({...task, completed})); // <-- assuming this works like an updateOrCreate()
+          const updateTask = (value: Task) => setTasks(tasks => tasks.map((t) => t.id === task.id ? value : t));
+          const setCompleted = async (completed: boolean) => updateTask(await taskRepo.save({...task, completed})); // <-- assuming this works like an updateOrCreate()
+
+          // updates the title only for the local state
+          const setTitle = (title: string) => updateTask({ ...task, title });
+          // updates the title for the local and DB state
+          const saveTask = async () => {
+            try {
+              updateTask(await taskRepo.update(task.id, task));
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          const deleteTask = async () => {
+            try {
+              await taskRepo.delete(task);
+              setTasks(tasks.filter((t) => t.id !== task.id));
+            }  catch (e) {
+              console.error(e);
+            }
+          }
 
           return (
             <div key={task.id}>
               <input type="checkbox" onChange={(e) => setCompleted(e.target.checked)} checked={task.completed}/>
-              {task.title}
+              <input type="text" onChange={(e) => setTitle(e.target.value)} value={task.title}/>
+              <button onClick={saveTask} >Save</button>
+              <button onClick={() => deleteTask()} >Delete</button>
             </div>
           )
         })}
