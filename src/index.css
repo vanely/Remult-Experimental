@@ -32,7 +32,7 @@ main>form {
   border-bottom: 1px solid lightgray;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: .25rem;
   justify-content: space-between;
 }
 
