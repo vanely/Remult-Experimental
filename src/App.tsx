@@ -14,6 +14,7 @@ function App() {
 
   const addTask = async (e: FormEvent) => {
     e.preventDefault();
+    // no need to manually update local state when using liveQuery clearing is all that's needed, the db state change will be reflected automatically
     try {
       const newTask = await taskRepo.insert({ title: newTaskTitle, description: taskDescription });
       setTasks([...tasks, newTask]);
@@ -25,11 +26,21 @@ function App() {
   }
 
   useEffect(() => {
-    taskRepo.find({
+    // taskRepo.find({
+    //   limit: 20,
+    //   orderBy:  { createdAt: "asc" },
+    //   // where: { completed: true }
+    // }).then(setTasks);
+
+    // for real time ui updates use the liveQuery method in remult repo
+    // NOTE: liveQuery uses Server Side Events API, which only supports 6 browser connections per connection pool(not scalable)
+    // find solution to replace this, potentially use Ably(https://ably.com/docs/getting-started/react)
+
+    taskRepo.liveQuery({
       limit: 20,
-      orderBy:  { createdAt: "asc" },
-      // where: { completed: true }
-    }).then(setTasks);
+      orderBy: { createdAt: 'asc' },
+    })
+    .subscribe((info) => setTasks(info.applyChanges));
   }, []); // <-- state or prop dependency causes useEffect to rerun! 
 
   return (
