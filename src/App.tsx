@@ -1,6 +1,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { remult } from 'remult';
 import { Task } from './shared/Task';
+import { TaskController } from './shared/TaskController';
 
 import './App.css';
 
@@ -17,12 +18,16 @@ function App() {
     // no need to manually update local state when using liveQuery clearing is all that's needed, the db state change will be reflected automatically
     try {
       const newTask = await taskRepo.insert({ title: newTaskTitle, description: taskDescription });
-      setTasks([...tasks, newTask]);
+      // setTasks([...tasks, newTask]);
       setNewTaskTitle("");
       setTaskDescription("");
     } catch (e) {
       console.error(['Unable to create new task: ', e]);
     }
+  }
+
+  const setAllCompleted = async (completed: boolean) => {
+    await TaskController.setAllCompleted(completed);
   }
 
   useEffect(() => {
@@ -47,6 +52,10 @@ function App() {
     <div className="App">
       <h1>Tasks</h1>
       <main>
+        <div>
+          <button onClick={() => setAllCompleted(true)}>Set All Completed</button>
+          <button onClick={() => setAllCompleted(false)}>Set All uncompleted</button>
+        </div>
         <form onSubmit={addTask}>
           <input type="text" onChange={(e) => setNewTaskTitle(e.target.value)} value={newTaskTitle} placeholder="What needs to be done?"/>
           <input type="text" onChange={(e) => setTaskDescription(e.target.value)} value={taskDescription} placeholder="Describe the task"/>
@@ -55,12 +64,19 @@ function App() {
         {tasks.map((task) => {
           // iterate through the tasks in the state, and when a task that matches the current task interacted with, replace it with it's updated version(value)
           const updateLocalStateTasks = (value: Task) => setTasks(tasks => tasks.map((t) => t.id === task.id ? value : t));
-          const setCompleted = async (completed: boolean) => updateLocalStateTasks(await taskRepo.save({...task, completed})); // <-- assuming this works like an updateOrCreate()
+
+          // below two functions' returns don't need to be wrapped in updateLocalStateTasks() to save to DB and local state because liveQuery updates DB state in real time(can be used as local state) 
+          const setCompleted = async (completed: boolean) => 
+          // updateLocalStateTasks(await taskRepo.save({...task, completed})); // <-- assuming this works like an updateOrCreate()
+          await taskRepo.save({...task, completed});
+
+          const updateDescription = async (description: string) => 
+          // updateLocalStateTasks(await taskRepo.save({...task, description}))
+          await taskRepo.save({...task, description});
 
           // updates the title only for the local state
           const setTitle = (title: string) => updateLocalStateTasks({ ...task, title });
 
-          const updateDescription = async (description: string) => updateLocalStateTasks(await taskRepo.save({...task, description}))
           // updates the title for the local and DB state
           const saveTask = async () => {
             try {
@@ -72,8 +88,9 @@ function App() {
 
           const deleteTask = async () => {
             try {
+              // using liveQuery the delete in the DB will take place in real time.
               await taskRepo.delete(task);
-              setTasks(tasks.filter((t) => t.id !== task.id));
+              // setTasks(tasks.filter((t) => t.id !== task.id));
             }  catch (e) {
               console.error(e);
             }

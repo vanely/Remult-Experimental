@@ -9,14 +9,14 @@
   {
     "id": "045a48fb-5e22-4d0d-bf8a-fea556512c8d",
     "title": "Put New Wheels on Car",
-    "completed": true,
+    "completed": false,
     "createdAt": "2024-02-14T03:26:32.187Z",
     "description": ""
   },
   {
     "id": "35b66294-8f11-4dbc-b465-ec798d9f69cb",
     "title": "Write Frontend Specs",
-    "completed": true,
+    "completed": false,
     "createdAt": "2024-02-14T03:27:07.098Z",
     "description": ""
   },
@@ -37,14 +37,14 @@
   {
     "id": "0c78bf54-7087-4a92-a6bd-204d57916600",
     "title": "A Missing Title",
-    "completed": true,
+    "completed": false,
     "createdAt": "2024-02-14T04:32:35.101Z",
     "description": ""
   },
   {
     "id": "ec12bd0c-b8a3-46da-bbf5-8f9e5be36d65",
     "title": "some more shit!",
-    "completed": true,
+    "completed": false,
     "createdAt": "2024-02-14T04:32:50.305Z",
     "description": ""
   },
