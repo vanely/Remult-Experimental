@@ -41,9 +41,12 @@ function App() {
     // NOTE: liveQuery uses Server Side Events API, which only supports 6 browser connections per connection pool(not scalable)
     // find solution to replace this, potentially use Ably(https://ably.com/docs/getting-started/react)
 
-    taskRepo.liveQuery({
-      limit: 20,
-      orderBy: { createdAt: 'asc' },
+    // the call to liveQuery should be returned because the subscribe method that it returns chained at the end
+    // returns an "unsubscribe" function, and explicit returns in useEffect are run on component unmount
+    // to prevent continuous calls when DB states are changed but component isn't in focus. 
+    return taskRepo.liveQuery({
+      // limit: 20,
+      // orderBy: { createdAt: 'asc' },
     })
     .subscribe((info) => setTasks(info.applyChanges));
   }, []); // <-- state or prop dependency causes useEffect to rerun! 
@@ -56,11 +59,13 @@ function App() {
           <button onClick={() => setAllCompleted(true)}>Set All Completed</button>
           <button onClick={() => setAllCompleted(false)}>Set All uncompleted</button>
         </div>
-        <form onSubmit={addTask}>
-          <input type="text" onChange={(e) => setNewTaskTitle(e.target.value)} value={newTaskTitle} placeholder="What needs to be done?"/>
-          <input type="text" onChange={(e) => setTaskDescription(e.target.value)} value={taskDescription} placeholder="Describe the task"/>
-          <button>Add</button>
-        </form>
+        { taskRepo.metadata.apiInsertAllowed() && (
+          <form onSubmit={addTask}>
+            <input type="text" onChange={(e) => setNewTaskTitle(e.target.value)} value={newTaskTitle} placeholder="What needs to be done?"/>
+            <input type="text" onChange={(e) => setTaskDescription(e.target.value)} value={taskDescription} placeholder="Describe the task"/>
+            <button>Add</button>
+          </form>
+        )}
         {tasks.map((task) => {
           // iterate through the tasks in the state, and when a task that matches the current task interacted with, replace it with it's updated version(value)
           const updateLocalStateTasks = (value: Task) => setTasks(tasks => tasks.map((t) => t.id === task.id ? value : t));
@@ -70,9 +75,12 @@ function App() {
           // updateLocalStateTasks(await taskRepo.save({...task, completed})); // <-- assuming this works like an updateOrCreate()
           await taskRepo.save({...task, completed});
 
-          const updateDescription = async (description: string) => 
-          // updateLocalStateTasks(await taskRepo.save({...task, description}))
-          await taskRepo.save({...task, description});
+          // can't use this when using liveQuery because there's length validation in the backend that would be performed on the first character
+          // const updateDescription = async (description: string) => {
+          //   await taskRepo.save({...task, description});
+          // }
+
+          const updateDescription = (description: string) => updateLocalStateTasks({ ...task, description })
 
           // updates the title only for the local state
           const setTitle = (title: string) => updateLocalStateTasks({ ...task, title });
@@ -102,7 +110,10 @@ function App() {
               <input type="text" onChange={(e) => setTitle(e.target.value)} value={task.title}/>
               <input type="text" onChange={(e) => updateDescription(e.target.value)} value={task.description}/>
               <button onClick={saveTask}>Save</button>
-              <button onClick={() => deleteTask()} >Delete</button>
+              {/* the apiDeleteAllowed method needs the entity passed to it because it can very nuanced and can be based on specific item values */}
+              { taskRepo.metadata.apiDeleteAllowed(task) && (
+                <button onClick={() => deleteTask()} >Delete</button>
+              )}
             </div>
           )
         })}
